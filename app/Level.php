@@ -23,5 +23,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Level extends Model
 {
-    //
+
+
+    /**
+     * Relationships
+     */
+    public function course()
+    {
+        return $this->hasOne(Course::class);
+    }
 }

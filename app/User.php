@@ -47,13 +47,24 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    protected static function boot()
+    {
+        //Invoca la funcion boot (tipo static) de Model (parent)
+        parent::boot();
+        static::creating(function (User $user){
+            if (! \App::runningInConsole())
+                $user->slug = str_slug($user->name . " " . $user->lastname, "-");
+        });
+    }
+
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'slug'
     ];
 
     /**
@@ -64,6 +75,11 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public static function navigation()
+    {
+        return auth()->check() ? auth()->user()->role->name : 'guest';
+    }
 
 
     /**

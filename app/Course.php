@@ -47,6 +47,15 @@ class Course extends Model
 
     const REJECTED = 3;
 
+    /**
+     *  direcccion de la imagen del curso
+     *
+     */
+    public function pathAttachment()
+    {
+        return "/images/courses/" . $this->picture;
+    }
+
 
     /**
      * Relationships
@@ -84,5 +93,11 @@ class Course extends Model
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
+    }
+
+
+    public function getCustomRatingAttribute()
+    {
+        return $this->reviews->avg('rating');
     }
 }

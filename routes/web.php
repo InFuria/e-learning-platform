@@ -11,20 +11,25 @@
 |
 */
 
-Route::get('login/{driver}', 'Auth\LoginController@redirectToProvider')->name('social_auth');
-Route::get('login/{driver}/callback', 'Auth\LoginController@handleProviderCallback');
-
 Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/', 'HomeController@index')->name('home');
+
+/** SOCIALITE **/
+Route::get('login/{driver}', 'Auth\LoginController@redirectToProvider')->name('social_auth');
+Route::get('login/{driver}/callback', 'Auth\LoginController@handleProviderCallback');
+
+
+/** AUTH **/
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-
+/** LANGUAGES **/
 Route::get('/set_language/{lang}', 'Controller@setLanguage')->name('set_language');
 
-// Ruta para enlazar las rutas falsas a las imagenes y mostrarlas
+
+/** IMAGES **/
 Route::get('/images/{path}/{attachment}', function ($path, $attachment){
     $file = sprintf('storage/%s/%s', $path, $attachment);
     if (File::exists($file))
@@ -32,6 +37,15 @@ Route::get('/images/{path}/{attachment}', function ($path, $attachment){
 });
 
 
-Route::group(['prefix' => 'courses'], function(){
-    Route::get('/{id}', 'CourseController@show')->name('courses.detail');
+/** COURSES **/
+Route::prefix('courses')->group( function(){
+    Route::get('/{course}', 'CourseController@show')->name('courses.detail');
+});
+
+
+/** SUBSCRIPTIONS **/
+Route::prefix('subscriptions')->group(function (){
+    Route::get('/plans', 'SubscriptionController@plans')->name('subscriptions.plans');
+    Route::post('/process_subscription', 'SubscriptionController@processSubscription')
+        ->name('subscriptions.process_subscriptions');
 });

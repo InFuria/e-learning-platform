@@ -47,6 +47,8 @@ class Course extends Model
 
     const REJECTED = 3;
 
+    protected $withCount = ['reviews', 'students'];
+
     /**
      *  direcccion de la imagen del curso
      *
@@ -54,6 +56,15 @@ class Course extends Model
     public function pathAttachment()
     {
         return "/images/courses/" . $this->picture;
+    }
+
+    /**
+     * ruta mediante slug
+     *
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 
 
@@ -95,9 +106,21 @@ class Course extends Model
         return $this->belongsTo(Teacher::class);
     }
 
-
+    /**
+     * Obtiene el avg del rating
+     */
     public function getCustomRatingAttribute()
     {
         return $this->reviews->avg('rating');
+    }
+
+    /**
+     * Obtiene los cursos relacionados
+     */
+    public function relatedCourses()
+    {
+        return Course::with('reviews')->whereCategoryId($this->category_id)
+            ->where('id', '!=', $this->id)
+            ->latest()->limit(6)->get();
     }
 }

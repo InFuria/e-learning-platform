@@ -69,7 +69,8 @@ class LoginController extends Controller
         }
 
         // Socialite devuelve el usuario devuelve la plataforma
-        $socialUser = Socialite::driver($driver)->user();
+        $socialUser = Socialite::driver($driver)/*->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))*/
+            ->user();
 
         $user = null;
         $success = true;

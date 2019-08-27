@@ -5,7 +5,7 @@
         <h4 class="card-title">{{ $course->name }}</h4>
         <hr/>
         <div class="row justify-content-center">
-            @include('partials.courses.rating')
+            @include('partials.courses.rating', ['rating' => $course->custom_rating])
         </div>
         <hr/>
         <span class="badge badge-danger badge-cat">{{ $course->category->name }}</span>

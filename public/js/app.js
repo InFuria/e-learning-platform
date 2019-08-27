@@ -14693,7 +14693,7 @@ var render = function() {
     attrs: {
       button: "Suscribirme",
       buttonClass: "btn btn-course",
-      "stripe--key": _vm.stripe_key,
+      "stripe-key": _vm.stripe_key,
       product: _vm.product
     }
   })

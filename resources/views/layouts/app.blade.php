@@ -22,7 +22,7 @@
 @yield('jumbotron')
 
 <div id="app">
-    <stripe-form></stripe-form>
+    {{--<stripe-form></stripe-form>--}}
     <main class="py-4">
         @if(session('message'))
             <div class="row justify-content-center">

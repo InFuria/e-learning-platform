@@ -11,9 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/salesmen_cashin', 'HomeController@salesmen_cashin');
+Route::get('/credit_transactions', 'HomeController@credit_transactions');
 
 Route::get('/', 'HomeController@index')->name('home');
 
@@ -43,6 +42,12 @@ Route::prefix('courses')->group( function(){
         Route::get('/subscribed', 'CourseController@subscribed')->name('courses.subscribed');
         Route::get('/{course}/inscribe', 'CourseController@inscribe')->name('courses.inscribe');
         Route::post('/add_review', 'CourseController@addReview')->name('courses.add_review');
+
+        Route::middleware([sprintf("role:%s", \App\Role::TEACHER)])->group(function (){
+            Route::get('/create', 'CourseController@create')->name('courses.create');
+            Route::post('/store', 'CourseController@store')->name('courses.store');
+            Route::put('/{course}/update', 'CourseController@update')->name('courses.update');
+        });
     });
 
     Route::get('/{course}', 'CourseController@show')->name('courses.detail');
@@ -71,6 +76,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', 'ProfileController@index')->name('profile.index');
         Route::put('/', 'ProfileController@update')->name('profile.update');
     });
+
+    /** SOLICITUDE **/
+    Route::prefix('solicitude')->group(function (){
+        Route::post('/teacher', 'SolicitudeController@teacher')->name('solicitude.teacher');
+    });
+
+    /** TEACHERS **/
+    Route::prefix('teacher')->group(function(){
+        Route::get('/courses', 'TeacherController@courses')->name('teacher.courses');
+        Route::get('/students', 'TeacherController@students')->name('teacher.students');
+        Route::post('/send_message_to_student', 'TeacherController@sendMessageToStudent')
+            ->name('teacher.send_message_to_student');
+    });
+
 
     Route::get('/subscribed', 'CourseController@subscribed')->name('courses.subscribed');
     Route::get('/{course}/inscribe', 'CourseController@inscribe')->name('courses.inscribe');

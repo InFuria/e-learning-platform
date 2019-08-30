@@ -11,7 +11,7 @@
 @section('content')
     <div class="pl-5 pr-5">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card">
                     <div class="card-header">
                         {{ __("Actualiza tus datos") }}
@@ -91,11 +91,135 @@
                                     </button>
                                 </div>
                             </div>
-
                         </form>
                     </div>
                 </div>
+
+                @if(!$user->teacher)
+                    <div class="card">
+                        <div class="card-header">
+                            {{ __("Convertirme en profesor de la plataforma") }}
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('solicitude.teacher') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-primary btn-block">
+                                    <i class="fa fa-graduation-cap"></i> {{ __("Solicitar") }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <div class="card">
+                        <div class="card-header">
+                            {{ __("Administrar los cursos que imparto") }}
+                        </div>
+                        <div class="card-body">
+                            <a href="{{ route('teacher.courses') }}" class="btn btn-secondary btn-block">
+                                <i class="fa fa-leanpub"></i>{{ __("Administrar ahora") }}
+                            </a>
+                            <a href="{{ route('teacher.students') }}" class="btn btn-secondary btn-block">
+                                <i class="fa fa-leanpub"></i>{{ __("VER") }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            {{ __("Mis estudiantes") }}
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered nowrap" cellspacing="0"
+                                   id="students-table">
+                                <thead>
+                                <tr>
+                                    <th>{{ __("ID") }}</th>
+                                    <th>{{ __("Nombre") }}</th>
+                                    <th>{{ __("Email") }}</th>
+                                    <th>{{ __("Cursos") }}</th>
+                                    <th>{{ __("Acciones") }}</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                @endif
+
+                @if($user->socialAccount)
+                    <div class="card">
+                        <div class="card-header">
+                            {{ __("Acceso con Socialite") }}
+                        </div>
+                        <div class="card-body">
+                            <button class="btn btn-outline-dark btn-block">
+                                {{ __("Registrado con ") }}: <i class="fa fa-{{$user->socialAccount->provider}}"></i>
+                                {{$user->socialAccount->provider}}
+                            </button>
+                        </div>
+                    </div>
+                    @endif
             </div>
         </div>
     </div>
+    @include('partials.modal')
 @endsection
+
+@push('scripts')
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script>
+        let dt, modal = jQuery("#appModal");
+
+        jQuery(document).ready(function () {
+            dt = jQuery("#students-table").DataTable({
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50, 75, 100],
+                processing: true,
+                serverSide: true,
+                language:{
+                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+                },
+                columns: [
+                    {data: 'user.id', visible: false},
+                    {data: 'user.name'},
+                    {data: 'user.email'},
+                    {data: 'courses_formatted'},
+                    {data: 'actions'}
+                ],
+                ajax: '{{ route('teacher.students') }}'
+            });
+
+            jQuery(document).on("click", '.btnEmail', function(e){
+                e.preventDefault();
+                const id = jQuery(this).data('id');
+                modal.find('.modal-title').text('{{ __("Enviar mensaje") }}');
+                modal.find('#modalAction').text('{{ __("Enviar mensaje") }}').show();
+                let $form = $("<form id='studentMessage'></form>");
+                $form.append(`<input type="hidden" name="user_id" value="${id}"/>`);
+                $form.append(`<textarea class="form-control" name="message"></textarea>`);
+                modal.find('.modal-body').html($form);
+                modal.modal();
+            });
+
+            jQuery(document).on("click", "#modalAction", function (e) {
+                jQuery.ajax({
+                    url: '{{ route('teacher.send_message_to_student') }}',
+                    type: 'POST',
+                    headers: {
+                        'x-csrf-token': $("meta[name=csrf-token]").attr('content')
+                    },
+                    data:{
+                        info: $("#studentMessage").serialize()
+                    },
+                    success: (res) =>{
+                        if(res.res){
+                            modal.find('#modalAction').hide();
+                            modal.find('.modal-body').html('<div class="alert alert-success">{{ __("Mensaje enviado correctamente") }}');
+                        }else{
+                            modal.find('.modal-body').html('<div class="alert alert-danger">{{ __("Ha ocurrido un error enviando el correo") }}');
+                        }
+                    }
+                })
+            });
+        })
+    </script>
+@endpush

@@ -30,7 +30,7 @@ class CreateUsersTable extends Migration
             $table->string('last_name')->nullable();
             $table->string('slug');
             $table->string('email')->unique();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->string('picture')->nullable()->comment('Imagen de usuario en la plataforma');
 

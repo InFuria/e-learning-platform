@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Requirement extends Model
 {
-
+    protected $fillable = ['course_id', 'requirement'];
 
     /**
      * Relationships

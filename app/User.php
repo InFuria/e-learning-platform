@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Cashier\Billable;
 
 /**
  * App\User
@@ -45,7 +46,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, Billable;
+
+    protected static function boot()
+    {
+        //Invoca la funcion boot (tipo static) de Model (parent)
+        parent::boot();
+        static::creating(function (User $user){
+            if (! \App::runningInConsole())
+                $user->slug = str_slug($user->name . " " . $user->lastname, "-");
+        });
+    }
+
 
     /**
      * The attributes that are mass assignable.
@@ -53,7 +65,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'slug'
     ];
 
     /**
@@ -64,6 +76,17 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+
+    public function pathAttachment()
+    {
+        return "/images/users/" . $this->picture;
+    }
+
+    public static function navigation()
+    {
+        return auth()->check() ? auth()->user()->role->name : 'guest';
+    }
 
 
     /**

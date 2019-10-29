@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserSocialAccount extends Model
 {
+    protected $table = 'user_social_acounts';
+
+    public $timestamps = false;
+
+    protected $fillable = [
+        'user_id', 'provider', 'provider_uid'
+    ];
 
     /**
      * Relationships
